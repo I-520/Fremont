@@ -1,0 +1,3 @@
+rootProject.name = 'FremontMobile'
+
+include ':app'
