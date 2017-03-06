@@ -19,7 +19,7 @@
     "I520.Fremont.Services": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5001/swagger/ui",
+      "launchUrl": "http://localhost:5000/swagger/ui",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
