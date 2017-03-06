@@ -25,17 +25,19 @@ namespace ProjectService.Controllers
         {
             try
             {
+                _logger.LogDebug("Getting all projects...");
+
                 return _projectRepository.GetAllProjects();
             }
             catch (DocumentClientException de)
             {
                 Exception baseException = de.GetBaseException();
-                Console.WriteLine("{0} error occurred: {1}, Message: {2}", de.StatusCode, de.Message, baseException.Message);
+                _logger.LogError("{StatusCode} error occurred: {ErrorMessage}, Message: {BaseMessage}", de.StatusCode, de.Message, baseException.Message);
             }
             catch (Exception e)
             {
                 Exception baseException = e.GetBaseException();
-                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+                _logger.LogError("Error: {ErrorMessage}, Message: {BaseMessage}", e.Message, baseException.Message);
             }
 
             return null;

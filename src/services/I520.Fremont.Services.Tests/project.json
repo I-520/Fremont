@@ -10,7 +10,8 @@
     "NSubstitute": "2.0.0-rc",
     "NUnit": "3.4.1",
     "Microsoft.DotNet.InternalAbstractions": "1.0.0",
-    "I520.Fremont.Services": "1.0.0-*"
+    "I520.Fremont.Services": "1.0.0-*",
+    "StyleCop.Analyzers": "1.1.0-beta001"
   },
 
   "frameworks": {

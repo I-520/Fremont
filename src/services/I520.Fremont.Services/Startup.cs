@@ -12,40 +12,22 @@ namespace I520.Fremont.Services
 {
     public class Startup
     {
-        private const string ClientId = "b0cb06bd-c43d-4045-9efc-5b83dc44c691";
-
-        private const string DocumentDbAccountKey = "";
-
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment environment, ILoggerFactory loggerFactory)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            BuildConfiguration(environment);
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfigurationRoot Configuration { get; private set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
             AddCustomConfiguration(services);
 
-            services.AddSwaggerGen(
-                c =>
-                {
-                    var basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                    var xmlPath = Path.Combine(basePath, "I520.Fremont.Services.xml");
-
-                    c.IncludeXmlComments(xmlPath);
-                });
+            AddSwaggerConfiguration(services);
 
             services.AddSingleton<IProjectRepository>(provider =>
             {
-                var url = Configuration.GetValue<string>("DocumentDbUrl");
-
-                return new ProjectDocumentDbRepository(url, DocumentDbAccountKey);
+                return new ProjectDocumentDbRepository(Configuration["FremontDocumentDb:Url"], Configuration["FremontDocumentDb:AccountKey"]);
             });
 
             services.AddMvc();
@@ -61,61 +43,43 @@ namespace I520.Fremont.Services
             app.UseSwaggerUi();
         }
 
+        private static void AddSwaggerConfiguration(IServiceCollection services)
+        {
+            services.AddSwaggerGen(
+                c =>
+                {
+                    var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                    var xmlPath = Path.Combine(basePath, "I520.Fremont.Services.xml");
+
+                    c.IncludeXmlComments(xmlPath);
+                });
+        }
+
+        private void BuildConfiguration(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+
+            /*  TODO: <tmerkel> Currently there is a bug that causes an error here.  Looks like it's fixed in 1.1.1.
+             *  We'll wait... https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjWxY-xm8HSAhUW4mMKHVKlAyQQFggiMAE&url=https%3A%2F%2Fgithub.com%2Faspnet%2FConfiguration%2Fissues%2F569&usg=AFQjCNGRAc1l0KSGDanfliGeU9bTN3fztg&sig2=xc0w3aky1AHLbiInoE7ikg
+            builder.AddAzureKeyVault(
+                Configuration["KeyVault:Name"],
+                Configuration["AzureAd:ClientId"],
+                Configuration["AzureAd:ClientSecret"]);
+                */
+        }
+
         private void AddCustomConfiguration(IServiceCollection services)
         {
             services.AddOptions();
 
             services.Configure<ApplicationConfiguration>(Configuration.GetSection("DocumentDbSettings"));
+            services.Configure<IConfiguration>(Configuration);
         }
-
-        /* private static async Task<string> GetKeyValueSecret(string keyValueUrl, string secretKey)
-        {
-            var cerificateThumbprint = "‎e42c77220919b18215a97986c5824bd4ab9e1716";
-            var authenticationClientId = "1c2cd3de-87e4-4e65-a0d7-23b543e6a530";
-
-            var certificate = FindCertificateByThumbprint(cerificateThumbprint);
-            var assertionCert = new ClientAssertionCertificate(authenticationClientId, certificate);
-
-            var client = new KeyVaultClient(
-                new KeyVaultClient.AuthenticationCallback(
-                    (authority, resource, scope) => GetAccessTokenAsync(authority, resource, scope, assertionCert)),
-                new System.Net.Http.HttpClient());
-
-            var secret = await client.GetSecretAsync(keyValueUrl, "fremontDocumentDbKey");
-
-            return secret.Value;
-        }
-
-        public static async Task<string> GetAccessTokenAsync(string authority, string resource, string scope, ClientAssertionCertificate assertionCert)
-        {
-            var context = new AuthenticationContext(authority, TokenCache.DefaultShared);
-
-            var result = await context.AcquireTokenAsync(resource, assertionCert);
-
-            return result.AccessToken;
-        }
-
-        private static X509Certificate2 FindCertificateByThumbprint(string certificateThumbprint)
-        {
-            if (certificateThumbprint == null)
-            {
-                throw new ArgumentNullException("certificateThumbprint");
-            }
-
-            using (X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
-            {
-                store.Open(OpenFlags.ReadOnly);
-                X509Certificate2Collection col = store.Certificates.Find(X509FindType.FindByThumbprint, certificateThumbprint, false); // Don't validate certs, since the test root isn't installed.
-
-                if (col == null || col.Count == 0)
-                {
-                    throw new Exception(
-                        string.Format("Could not find the certificate with thumbprint {0} in the Local Machine's Personal certificate store.",
-                        certificateThumbprint));
-                }
-
-                return col[0];
-            }
-        }*/
     }
 }

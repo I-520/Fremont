@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using FluentAssertions;
+using I520.Fremont.Services.Data;
+using I520.Fremont.Services.Models;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NUnit.Framework;
 using ProjectService.Controllers;
-using NSubstitute;
-using I520.Fremont.Services.Data;
-using Microsoft.Extensions.Logging;
-using I520.Fremont.Services.Models;
-using FluentAssertions;
+using System.Collections.Generic;
 
 namespace I520.Fremont.Services.Tests
 {
