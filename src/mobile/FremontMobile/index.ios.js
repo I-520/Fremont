@@ -12,7 +12,7 @@ import {
   View
 } from 'react-native';
 
-export default class FremontMobile extends Component {
+export default class Fremont extends Component {
   render() {
     return (
       <View style={styles.container}>
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('FremontMobile', () => FremontMobile);
+AppRegistry.registerComponent('Fremont', () => Fremont);

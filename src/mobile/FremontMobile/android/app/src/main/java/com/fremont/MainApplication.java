@@ -1,4 +1,4 @@
-package com.fremontmobile;
+package com.fremont;
 
 import android.app.Application;
 
