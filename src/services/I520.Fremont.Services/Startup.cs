@@ -70,13 +70,16 @@ namespace I520.Fremont.Services
 
             Configuration = builder.Build();
 
-            var kv = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
+            AddAzureKeyVaultAsConfigurationSource(builder);
+        }
 
-            /*  TODO: <tmerkel> Currently there is a bug that causes an error here.  Looks like it's fixed in 1.1.1.
-             *  We'll wait... https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjWxY-xm8HSAhUW4mMKHVKlAyQQFggiMAE&url=https%3A%2F%2Fgithub.com%2Faspnet%2FConfiguration%2Fissues%2F569&usg=AFQjCNGRAc1l0KSGDanfliGeU9bTN3fztg&sig2=xc0w3aky1AHLbiInoE7ikg*/
+        private void AddAzureKeyVaultAsConfigurationSource(IConfigurationBuilder builder)
+        {
+            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
+
             builder.AddAzureKeyVault(
                 Configuration["KeyVault:Name"],
-                kv,
+                keyVaultClient,
                 new DefaultKeyVaultSecretManager());
 
             Configuration = builder.Build();

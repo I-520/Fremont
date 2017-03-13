@@ -1,8 +1,11 @@
 ﻿using FluentAssertions;
 using I520.Fremont.Services.Data;
 using I520.Fremont.Services.Models;
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using ProjectService.Controllers;
 using System.Collections.Generic;
@@ -54,6 +57,31 @@ namespace I520.Fremont.Services.Tests
 
                 result.Should().NotBeNull();
                 result?.Should().Equal(projects);
+            }
+
+            [Test]
+            public void ReturnsNullOnError()
+            {
+                var controller = CreateControllerWithMocks();
+
+                var projects = new List<Project>
+                {
+                    new Project
+                    {
+                        Description = "I love the Mets",
+                        Name = "Donde esta",
+                        ImageUrls = new List<string>
+                        {
+                            "http://image"
+                        }
+                    }
+                };
+
+                _projectRepository.GetAllProjects().Throws(new DocumentQueryException("bob loblaw throws exception"));
+
+                var result = controller.Get();
+
+                result.Should().BeNull();
             }
         }
     }
